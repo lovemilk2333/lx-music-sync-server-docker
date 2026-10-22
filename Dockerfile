@@ -8,6 +8,7 @@ RUN apk add --update \
     py3-pip \
     nodejs \
     npm \
+    ca-certificates \
   && npm ci && npm run build \
   && rm -rf node_modules && npm ci --omit=dev \
   && mkdir build-output \
