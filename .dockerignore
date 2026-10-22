@@ -1,5 +1,13 @@
 .git
 .gitignore
+.github
+.env
+.env.*
+!.env.example
 node_modules
 data
 logs
+*.md
+!Readme.md
+publish
+server

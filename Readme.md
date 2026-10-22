@@ -1,33 +1,58 @@
-# Docker镜像
-完全基于releases官方压缩包，没有做任何修改。
+# Docker 镜像
 
-docker hub地址：[woodchen/lxmusicsyncserver:v2.0.0](https://hub.docker.com/r/woodchen/lxmusicsyncserver)
+基于本仓库源码构建（含 CVE-2026-114406 等相关修复），可从 Docker Hub 或 GHCR 拉取。
+
+| 仓库 | 地址 |
+|:---:| --- |
+| Docker Hub | [lovemilk233/lx-music-sync-server](https://hub.docker.com/r/lovemilk233/lx-music-sync-server) |
+| GHCR | [ghcr.io/lovemilk2333/lx-music-sync-server](https://github.com/lovemilk2333/lx-music-sync-server-docker/pkgs/container/lx-music-sync-server) |
+
 ```bash
-#一直最新版本
-docker pull woodchen/lxmusicsyncserver
+# 最新版（Docker Hub）
+docker pull lovemilk233/lx-music-sync-server:latest
 
+# 或 GHCR
+docker pull ghcr.io/lovemilk2333/lx-music-sync-server:latest
+
+# 指定版本
+docker pull lovemilk233/lx-music-sync-server:2.1.1
+```
+
+## 快速运行
+
+本镜像将数据与日志统一挂到 `/server/data`（容器内 `DATA_PATH=/server/data/data`，`LOG_PATH=/server/data/logs`）。
+
+```bash
 docker run -d \
-  --name lxmusicsyncserver \
+  --name lx-music-sync-server \
   --restart=always \
-  -p 19527:9527 \ #左边自定义端口
-  -v /volume1/docker/lxmusicsyncserver/logs:/server/logs \ #左边自己的保存目录
-  -v /volume1/docker/lxmusicsyncserver/data:/server/data \ #左边自己的保存目录
+  -p 9527:9527 \
+  -v /path/to/lx-music-sync/data:/server/data \
   -e TZ=Asia/Shanghai \
-  -e LX_USER_wood1=wood1 \ # 左边放用户名，右边是密码，可以加多个
-  -e LX_USER_wood=wood \
   -e BIND_IP=0.0.0.0 \
   -e PORT=9527 \
-  woodchen/lxmusicsyncserver
+  -e LX_USER_user1=your_password \
+  lovemilk233/lx-music-sync-server:latest
+```
 
+可用环境变量见下文「附录 / 可用的环境变量」。公网部署请务必用 Nginx 等做 HTTPS 反向代理。
 
-#2.1.1版本
-docker pull woodchen/lxmusicsyncserver:v2.1.1
+## 发布镜像
 
-#2.0.0版本
-docker pull woodchen/lxmusicsyncserver:v2.0.0
+**GitHub Actions（推荐）**：打 `v*.*.*` tag 或手动运行 [Docker Publish](.github/workflows/docker-publish.yml) workflow。  
+需在仓库 Secrets 配置 `DOCKER_HUB_USER`、`DOCKER_HUB_TOKEN`；GHCR 使用内置 `GITHUB_TOKEN`，无需额外 PAT。
 
-#1.3.3版本
-docker pull woodchen/lxmusicsyncserver:1.3.3
+**本地推送到 Docker Hub**：
+
+```bash
+cp .env.example .env   # 填入 DOCKER_HUB_USER / DOCKER_HUB_TOKEN
+./scripts/publish-docker.sh
+```
+
+或仅本地构建：
+
+```bash
+docker build -t lx-music-sync-server .
 ```
 
 ![image](https://github.com/lyswhut/lx-music-sync-server/assets/95951386/824273bc-a208-4e29-a4d4-1b702d8a085a)
@@ -35,7 +60,7 @@ docker pull woodchen/lxmusicsyncserver:1.3.3
 
 
 
-# LX Msuic Sync Server
+# LX Music Sync Server
 
 洛雪音乐数据同步服务端，本项目目前用于收藏列表数据同步，类似原来PC端的数据同步服务，只不过它现在是一个独立版的服务，可以将其部署到服务器上使用。
 
@@ -251,12 +276,17 @@ server {
 
 ### Docker
 
-可以使用以下方式构建docker镜像（Dockerfile用的是源码构建）：
+可以使用以下方式构建 docker 镜像（Dockerfile 用的是源码构建）：
 
 ```bash
 docker build -t lx-music-sync-server .
 ```
 
-或者使用已发布到 Docker Hub 的镜像：<https://hub.docker.com/r/lyswhut/lx-music-sync-server>
+本仓库已发布镜像：
 
-也可以看issue中的解决方案：<https://github.com/lyswhut/lx-music-sync-server/issues/4>
+- Docker Hub：<https://hub.docker.com/r/lovemilk233/lx-music-sync-server>
+- GHCR：`ghcr.io/lovemilk2333/lx-music-sync-server`
+
+上游官方镜像：<https://hub.docker.com/r/lyswhut/lx-music-sync-server>
+
+也可以看 issue 中的解决方案：<https://github.com/lyswhut/lx-music-sync-server/issues/4>
